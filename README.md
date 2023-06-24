@@ -29,6 +29,7 @@ The algorithm itself can be described as follows:
 Example of before and after compression:
 
 Before- 
+
 ![image](https://github.com/camisbored/CamsCompression/assets/81730723/6e0c4277-d05a-476a-af2d-b3b28b5305df)
 
 After (I highlighted the pattern table)-

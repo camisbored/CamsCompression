@@ -15,6 +15,7 @@ handles for a program like this. The answer was surprisingly well. This supports
 As can be seen above, in the best case the compressed size is 0.000000000294% of the original, while on the average case it saves around 10%.
 
 The algorithm itself can be described as follows:
+##
 -Bytes [0, 1] = 0x43, 0x47
 -Byte  [2] = unsigned char [1-4] describing how many bytes to read for address
 -The following 1-4 bytes contain the address of a table at the end of the file. 

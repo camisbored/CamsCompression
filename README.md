@@ -14,10 +14,10 @@ powerful tool with more real world use cases. Recently beginning to learn rust, 
 handles for a program like this. The answer was surprisingly well. This supports files of up to 4gb, and was able to handle with no memory issues.
 As can be seen above, in the best case the compressed size is 0.000000000294% of the original, while on the average case it saves around 10%.
 
-The algorithm itself can be described as follows:
 ##
--Bytes [0, 1] = 0x43, 0x47
--Byte  [2] = unsigned char [1-4] describing how many bytes to read for address
+The algorithm itself can be described as follows:
+ - Bytes [0, 1] = 0x43, 0x47
+ - Byte  [2] = unsigned char [1-4] describing how many bytes to read for address
 -The following 1-4 bytes contain the address of a table at the end of the file. 
 -Following the address is the compressed data.
 -After all the compressed data, sits a table with 1 or more entries
@@ -27,6 +27,7 @@ The algorithm itself can be described as follows:
 -The next 1-4 bytes is how many times pattern occurs as a big endian integer.
 -The final byte in a table entry is the actual byte value that was repeated
 -Ex: {0x02, 0x0512, 0x04, 0x08432543, 0xFF} means the byte 0xFF occured at address 0x512 0x08432543 times.
+##
 
 Example of before and after compression:
 

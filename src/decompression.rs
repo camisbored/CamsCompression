@@ -3,7 +3,7 @@ use std::io::{Read, Write};
 
 use super::pattern::Pattern;
 
-use super::utils::expand_vec;
+//use super::utils::expand_vec;
 use super::utils::get_int_from_vec;
 use super::utils::parse_patterns;
 
@@ -13,6 +13,7 @@ use super::utils::parse_patterns;
 pub fn decompress(input_path: &str, output_path: &str) -> std::io::Result<()> {
     let mut input_file = File::open(input_path)?;
     let mut output_file = File::create(output_path)?;
+    let mut output_buffer = Vec::new();
 
     //load whole inupt file into buffer
     let mut buffer = Vec::new();
@@ -48,19 +49,39 @@ pub fn decompress(input_path: &str, output_path: &str) -> std::io::Result<()> {
         let pattern_data = buffer[table_addr..=buffer.len()-1].to_vec();
         buffer.drain(table_addr..=buffer.len()-1);
 
+        let mut total_output_size: u32 = buffer.len() as u32;
+        let mut file_pointer = 0;
+        let mut old_file_pointer = 0;
+
         //for each pattern, insert data back into file
         let patterns: Vec<Pattern> = parse_patterns(&pattern_data);
-        for pattern in patterns {
-            expand_vec(&mut buffer, pattern.addr as usize, pattern.character, pattern.count as usize);
+        for pattern in &patterns {
+            while file_pointer < pattern.addr{
+                output_buffer.push(buffer[old_file_pointer as usize]);
+                file_pointer+=1;
+                old_file_pointer+=1;
+            }
+            for _ in 0..pattern.count {
+                output_buffer.push(pattern.character);
+            }
+            file_pointer+=pattern.count;
+            total_output_size += pattern.count;
         }
 
+        while file_pointer < total_output_size{
+            output_buffer.push(buffer[old_file_pointer as usize]);
+            file_pointer+=1;
+            old_file_pointer+=1;
+        }
+
+        //write completed buffer to output file
+        output_file.write_all(&output_buffer)?;
     } else {
         //if there was no pattern data, remove remainder of header, initial file is then in tack.
         buffer.drain(..2);
-    }
+        output_file.write_all(&buffer)?;
 
-    //write completed buffer to output file
-    output_file.write_all(&buffer)?;
+    }
 
     Ok(())
 }

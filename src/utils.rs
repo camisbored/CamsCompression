@@ -24,25 +24,6 @@ pub fn get_byte_count_from_int(address: u32) -> u8 {
     }
 }
 
-/// expand_vec
-/// inserts series of data inside an already existing Vec
-/// uses unsafe block, as other methods have serious performance disadvanges
-/// this elsewise would be a very computation heavy call for large values
-pub fn expand_vec(array: &mut Vec<u8>, index: usize, value: u8, count: usize) {
-    let len = array.len();
-    let additional_len = count * std::mem::size_of::<u8>();
-    let new_len = len + additional_len;
-
-    array.reserve(additional_len);
-
-    unsafe {
-        let array_ptr = array.as_mut_ptr().add(index);
-        std::ptr::copy(array_ptr, array_ptr.add(additional_len), len - index);
-        std::ptr::write_bytes(array_ptr, value, count);
-        array.set_len(new_len);
-    }
-}
-
 /// get_int_from_vec
 /// takes a unsigned char describing how many bytes to read,
 /// and an unsigned char array. it will read the number of bytes
@@ -77,11 +58,14 @@ pub fn get_byte_series_from_int(value: u32) -> Result<Vec<u8>, Error> {
     return Ok(local_data);
 }
 
+/// parse patterns
+/// parses pattern table and returns vec with completed structs
 pub fn parse_patterns(pattern_data: &[u8]) -> Vec<Pattern> {
     let mut patterns: Vec<Pattern> = Vec::new();
     let mut i = 0;
 
     while i < pattern_data.len() {
+        //read each value from memory
         let bytes_to_desc_addr: u8 = pattern_data[i];
         i += 1;
 
@@ -101,6 +85,7 @@ pub fn parse_patterns(pattern_data: &[u8]) -> Vec<Pattern> {
         let character = pattern_data[i];
         i += 1;
 
+        //put into struct
         let pattern = Pattern::new_deserialize(
             bytes_to_desc_addr,
             pattern_addr.try_into().unwrap(),
